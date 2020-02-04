@@ -102,3 +102,4 @@ func NewLogger(conf *Conf) *Logger {
 
 	return log
 }
+
