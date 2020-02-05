@@ -5,7 +5,6 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"sync"
 )
 
 var empty []byte = []byte("")
@@ -72,7 +71,7 @@ func (l *Logger) Rotate() error {
 	return l.Lumberjack.Rotate()
 }
 
-func NewLogger(conf *Conf, wg *sync.WaitGroup) *Logger {
+func NewLogger(conf *Conf) *Logger {
 	lj := &lumberjack.Logger{
 		Filename:  conf.Path,
 		MaxSize:   conf.MaxSize,
