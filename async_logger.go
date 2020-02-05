@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"sync"
 )
 
 var empty []byte = []byte("")
@@ -71,7 +72,7 @@ func (l *Logger) Rotate() error {
 	return l.Lumberjack.Rotate()
 }
 
-func NewLogger(conf *Conf) *Logger {
+func NewLogger(conf *Conf, wg *sync.WaitGroup) *Logger {
 	lj := &lumberjack.Logger{
 		Filename:  conf.Path,
 		MaxSize:   conf.MaxSize,
@@ -83,14 +84,10 @@ func NewLogger(conf *Conf) *Logger {
 		flush:      false,
 		conf:       conf,
 		queue:      make(chan []byte, conf.QueueSize),
-		Lumberjack: lj,
-	}
+		Lumberjack: lj}
 
-	core := zapcore.NewCore(
-		zapcore.NewConsoleEncoder(conf.ZapConf),
-		log,
-		levels[conf.Level],
-	)
+	encoder := zapcore.NewConsoleEncoder(conf.ZapConf)
+	core := zapcore.NewCore(encoder, log, levels[conf.Level])
 
 	if conf.ZapConf.CallerKey != "" {
 		log.Zap = zap.New(core, zap.AddCaller())
@@ -102,4 +99,3 @@ func NewLogger(conf *Conf) *Logger {
 
 	return log
 }
-
