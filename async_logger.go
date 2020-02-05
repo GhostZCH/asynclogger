@@ -83,14 +83,10 @@ func NewLogger(conf *Conf) *Logger {
 		flush:      false,
 		conf:       conf,
 		queue:      make(chan []byte, conf.QueueSize),
-		Lumberjack: lj,
-	}
+		Lumberjack: lj}
 
-	core := zapcore.NewCore(
-		zapcore.NewConsoleEncoder(conf.ZapConf),
-		log,
-		levels[conf.Level],
-	)
+	encoder := zapcore.NewConsoleEncoder(conf.ZapConf)
+	core := zapcore.NewCore(encoder, log, levels[conf.Level])
 
 	if conf.ZapConf.CallerKey != "" {
 		log.Zap = zap.New(core, zap.AddCaller())
@@ -102,4 +98,3 @@ func NewLogger(conf *Conf) *Logger {
 
 	return log
 }
-
